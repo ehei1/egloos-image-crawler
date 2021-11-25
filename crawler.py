@@ -173,13 +173,19 @@ class Crawler:
             file_name = f'{i:0{zerofill}d}{ext}'
             file_path = os.path.join(save_path, file_name)
 
-            while True:
+            count = 5
+            while count > 0:
                 try:
                     urllib.request.urlretrieve(uri, file_path)
                     break
                 except http.client.RemoteDisconnected:
+                    print(f'remote disconnected. wait 10 sec. after that try again: {uri}')
+
                     await asyncio.sleep(10)
-                    print('remote disconnected. wait 10 sec. after that try again')
+                    count -= 1
+                except urllib.error.HTTPError:
+                    print(f'uri is invalid. ask to blog owner: {uri}')
+                    break
 
             print(f'\t\t{i:0{zerofill}d}/{len(children)}')
 
